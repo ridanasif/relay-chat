@@ -1,0 +1,36 @@
+# Node modules (frontend + backend)
+node_modules/
+**/node_modules/
+
+# Environment files (backend + frontend)
+.env
+*.env
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Vite / frontend build
+dist/
+out/
+.vite/
+
+# Backend build 
+build/
+bin/
+*.tsbuildinfo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
