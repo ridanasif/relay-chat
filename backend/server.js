@@ -18,18 +18,17 @@ io.on("connection", function (socket) {
   socket.on("register", (username) => {
     users.set(socket.id, username);
     socket.emit("history", messages);
-    console.log(users);
   });
 
   socket.on("message", (message) => {
-    let user = users.get(socket.id);
-    messages.push({ user, message });
-    io.emit("message", { user, message });
+    let user = users.get(socket.id) || "Anonymous";
+    let m = { id: socket.id, user, message };
+    messages.push(m);
+    io.emit("message", m);
   });
 
   socket.on("disconnect", function () {
     users.delete(socket.id);
-    console.log(users);
   });
 });
 
