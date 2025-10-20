@@ -6,15 +6,17 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import UserItem from "./components/UserItem";
 
+// Main Chat component
 const Chat = () => {
   const API_URL = import.meta.env.VITE_API_URL;
 
-  const socket = useRef(null);
-  const bottomDivRef = useRef(null);
+  const socket = useRef(null); // ref to store socket instance
+  const bottomDivRef = useRef(null); // ref for auto-scrolling
 
   const myUsername = localStorage.getItem("username");
-
   const navigate = useNavigate();
+
+  // State variables
   const [selectedUser, setSelectedUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [activeUsers, setActiveUsers] = useState([]);
@@ -23,10 +25,12 @@ const Chat = () => {
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [search, setSearch] = useState("");
 
+  // Handle message input change
   const setMessageText = (e) => {
     setMessage(e.target.value);
   };
 
+  // Fetch all users except logged-in user
   const fetchUsers = async () => {
     try {
       const response = await axios.get(`${API_URL}/users`);
@@ -36,26 +40,35 @@ const Chat = () => {
     }
   };
 
+  // Update search term for user filtering
   const filterUsers = (e) => {
     setSearch(e.target.value);
   };
 
   useEffect(() => {
+    // Set default Authorization header for axios
     axios.defaults.headers.common[
       "Authorization"
     ] = `Bearer ${localStorage.getItem("token")}`;
+
+    // Initialize socket connection
     socket.current = io(API_URL, {
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
     });
 
+    // Register current user on socket connect
     const handleConnect = () => {
       socket.current?.emit("register", localStorage.getItem("username"));
     };
+
+    // Listen for incoming messages
     const handleMessage = (msg) => {
       setMessages((prev) => [...prev, msg]);
     };
+
+    // Listen for active users updates
     const handleActiveUsersUpdate = (allActiveUsers) => {
       setActiveUsers(allActiveUsers);
     };
@@ -64,10 +77,10 @@ const Chat = () => {
     socket.current?.on("activeUsersUpdate", handleActiveUsersUpdate);
     socket.current?.on("message", handleMessage);
 
-    // Fetch all users except the logged in user
+    // Fetch users on mount
     fetchUsers();
 
-    // Cleanup function
+    // Cleanup socket listeners on unmount
     return () => {
       socket.current?.off("connect", handleConnect);
       socket.current?.off("activeUsersUpdate", handleActiveUsersUpdate);
@@ -76,11 +89,12 @@ const Chat = () => {
     };
   }, []);
 
-  // Scroll to bottom
+  // Auto-scroll to bottom when messages update
   useEffect(() => {
     bottomDivRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Fetch messages when a user is selected
   useEffect(() => {
     setMessages([]);
     async function getMessages() {
@@ -97,6 +111,7 @@ const Chat = () => {
     getMessages();
   }, [selectedUser]);
 
+  // Send a new message via socket
   const sendMessage = () => {
     if (!message.trim() || !socket.current?.connected || !selectedUser) return;
     socket.current?.emit("message", {
@@ -107,12 +122,14 @@ const Chat = () => {
     setMessage("");
   };
 
+  // Filter users based on search input
   const filteredUsers = users.filter((u) =>
     u.username.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
     <div className="w-full h-screen bg-gray-100 grid grid-cols-4 overflow-hidden">
+      {/* Sidebar with user list */}
       <div className="flex flex-col h-screen bg-white col-span-1 border-r-1 border-gray-200">
         <header className="w-full py-4 px-5 flex flex-col gap-5">
           <h1 className="text-3xl font-semibold">Messages</h1>
@@ -126,6 +143,7 @@ const Chat = () => {
             <Search className="text-gray-500" />
           </div>
         </header>
+
         <main
           className={`flex-1 overflow-y-auto space-y-5 ${
             filteredUsers.length < 1 && "flex justify-center"
@@ -140,18 +158,16 @@ const Chat = () => {
                   user={user}
                   isSelectedUser={selectedUser?.username === username}
                   isUserOnline={activeUsers.includes(username)}
-                  onClick={() => {
-                    setSelectedUser(user);
-                  }}
+                  onClick={() => setSelectedUser(user)}
                 />
               );
             })
           ) : (
-            <>
-              <p>No users found.</p>
-            </>
+            <p>No users found.</p>
           )}
         </main>
+
+        {/* Logout button */}
         <footer className="py-5 px-5 flex justify-center items-center">
           <button
             className="bg-gradient-to-br from-pink-700 to-pink-500 text-center py-2 outline-0 w-full rounded-md text-white cursor-pointer hover:from-pink-800 hover:to-pink-900 transition-colors"
@@ -168,6 +184,8 @@ const Chat = () => {
           </button>
         </footer>
       </div>
+
+      {/* Chat area */}
       <div className="flex flex-col h-screen col-span-3">
         {selectedUser && (
           <header className="w-full px-10 py-2 bg-white border-b-1 border-b-gray-200">
@@ -175,6 +193,7 @@ const Chat = () => {
             <span className="text-gray-500">@{selectedUser?.username}</span>
           </header>
         )}
+
         <main
           className={`flex-1 flex transition-all ${
             selectedUser && !messagesLoading
@@ -182,6 +201,7 @@ const Chat = () => {
               : "flex-col justify-center items-center"
           }`}
         >
+          {/* Messages or loading/empty state */}
           {selectedUser && !messagesLoading ? (
             <>
               {messages
@@ -203,9 +223,7 @@ const Chat = () => {
               <div ref={bottomDivRef}></div>
             </>
           ) : messagesLoading ? (
-            <>
-              <Loader size={48} className="text-neutral-700 animate-spin" />
-            </>
+            <Loader size={48} className="text-neutral-700 animate-spin" />
           ) : (
             <>
               <Rocket size={48} className="text-neutral-700" />
@@ -218,6 +236,8 @@ const Chat = () => {
             </>
           )}
         </main>
+
+        {/* Input for sending messages */}
         <footer className="w-full py-4 px-10 bg-white flex gap-x-3 border-t-1 border-gray-200">
           <input
             type="text"
