@@ -250,11 +250,11 @@ const Chat = () => {
               }
             }}
             className="w-full outline-0 py-2 px-5"
-            disabled={!selectedUser}
+            disabled={!selectedUser || messagesLoading}
           />
           <button
             onClick={sendMessage}
-            disabled={!selectedUser}
+            disabled={!selectedUser || messagesLoading}
             className="bg-violet-500 disabled:opacity-30 self-center px-5 py-2 rounded-full text-white font-bold enabled:cursor-pointer enabled:hover:bg-violet-600 transition-colors"
           >
             <Rocket />
