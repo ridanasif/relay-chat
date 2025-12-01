@@ -15,7 +15,7 @@ createRoot(document.getElementById("root")).render(
         path="/login"
         element={
           <PublicRoute>
-            <AuthForm mode="login" />
+            <AuthForm mode="login" key="login" />
           </PublicRoute>
         }
       />
@@ -23,7 +23,7 @@ createRoot(document.getElementById("root")).render(
         path="/register"
         element={
           <PublicRoute>
-            <AuthForm mode="register" />
+            <AuthForm mode="register" key="register" />
           </PublicRoute>
         }
       />

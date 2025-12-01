@@ -9,12 +9,7 @@ const UserItem = ({ user, isSelectedUser, isUserOnline, onClick }) => {
       onClick={onClick}
     >
       <div className="flex items-center gap-x-3">
-        <img
-          src="https://lh6.googleusercontent.com/proxy/ZLGihPRfkkerdJBqfRKKFRWQcXDCfMMuuK_6_IDH6Mfhu0VI3Du2L9eOTiz0yKsIftOesQQnj0whQCZFudjFH-cXgBKnebrpknuWtjKkDcRC5Ik"
-          width="50"
-          height="50"
-          className="rounded-full"
-        />
+        <img src="/user.png" width="50" height="50" className="rounded-full" />
         <div>
           <p>@{username}</p>
           <p
